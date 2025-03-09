@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2c3e50">
+    <meta name="description" content="Analyze engine sounds to identify potential mechanical issues">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Engine Sound Classifier</title>
     <link rel="manifest" href="/static/manifest.json">
     <link rel="icon" type="image/png" href="/static/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -67,6 +71,16 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background-color: rgba(52, 152, 219, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
         }
 
         .upload-area:hover {
@@ -201,6 +215,8 @@
             header { padding: 1.5rem; }
             .upload-container, .results-container { padding: 1.5rem; }
             .charts-container { grid-template-columns: 1fr; }
+            .btn { width: 100%; }
+            .upload-area { padding: 1.5rem 1rem; }
         }
 
         .offline-banner {
@@ -215,6 +231,27 @@
             right: 0;
             z-index: 1000;
         }
+        
+        .install-prompt {
+            display: none;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .install-btn {
+            background-color: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -228,6 +265,11 @@
     </header>
     
     <div class="container">
+        <div id="installPrompt" class="install-prompt">
+            <span>Install this app on your device for offline use</span>
+            <button id="installBtn" class="install-btn">Install</button>
+        </div>
+        
         <div class="upload-container">
             <h2>Upload Engine Sound</h2>
             <p>Upload a WAV file of engine sound to analyze and identify potential issues</p>
@@ -275,6 +317,41 @@
                     .catch(err => console.log('ServiceWorker registration failed:', err));
             });
         }
+
+        // PWA Installation
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show the install button
+            installPrompt.style.display = 'flex';
+        });
+
+        installBtn.addEventListener('click', (e) => {
+            // Hide the app provided install promotion
+            installPrompt.style.display = 'none';
+            // Show the install prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+            });
+        });
+
+        // Hide install prompt when already installed
+        window.addEventListener('appinstalled', (evt) => {
+            installPrompt.style.display = 'none';
+        });
 
         // Offline detection
         const offlineBanner = document.getElementById('offlineBanner');
