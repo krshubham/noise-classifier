@@ -3,104 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2c3e50">
     <title>Engine Sound Classifier</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" type="image/png" href="/static/icons/icon-192x192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --background-color: #f5f5f5;
+            --card-background: #ffffff;
+            --text-color: #2c3e50;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
+
         header {
-            background-color: #2c3e50;
+            background-color: var(--primary-color);
             color: white;
-            text-align: center;
-            padding: 1rem;
+            padding: 2rem;
             margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
         }
-        h1 {
-            margin: 0;
-        }
+
         .upload-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
             padding: 2rem;
             margin-bottom: 2rem;
             text-align: center;
         }
+
         .upload-area {
-            border: 2px dashed #3498db;
-            border-radius: 5px;
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius);
             padding: 2rem;
             margin: 1rem 0;
             cursor: pointer;
             transition: all 0.3s ease;
+            background-color: rgba(52, 152, 219, 0.05);
         }
+
         .upload-area:hover {
-            background-color: #f0f9ff;
+            background-color: rgba(52, 152, 219, 0.1);
+            transform: translateY(-2px);
         }
-        .upload-icon {
-            font-size: 3rem;
-            color: #3498db;
-            margin-bottom: 1rem;
+
+        .upload-area.drag-over {
+            background-color: rgba(52, 152, 219, 0.2);
+            border-color: var(--primary-color);
         }
+
         .btn {
-            background-color: #3498db;
+            background-color: var(--secondary-color);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
             cursor: pointer;
             font-size: 1rem;
-            transition: background-color 0.3s ease;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
+
         .btn:hover {
             background-color: #2980b9;
+            transform: translateY(-1px);
         }
-        .hidden {
-            display: none;
+
+        .btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
         }
+
         .results-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
             padding: 2rem;
             margin-bottom: 2rem;
             display: none;
         }
-        .result-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+
         .result-card {
-            background-color: #f8f9fa;
-            border-radius: 8px;
+            background-color: rgba(52, 152, 219, 0.05);
+            border-radius: var(--border-radius);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border-left: 5px solid #3498db;
+            border-left: 5px solid var(--secondary-color);
         }
-        .result-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
+
         .confidence-bar-container {
             background-color: #e9ecef;
-            border-radius: 5px;
+            border-radius: var(--border-radius);
             height: 25px;
             margin: 10px 0;
             overflow: hidden;
         }
+
         .confidence-bar {
-            background-color: #3498db;
             height: 100%;
             display: flex;
             align-items: center;
@@ -108,86 +134,94 @@
             color: white;
             padding-right: 10px;
             transition: width 1s ease-in-out;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
         }
+
         .charts-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
             margin-top: 2rem;
         }
+
         .chart-box {
-            flex: 0 0 48%;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 1rem;
-            margin-bottom: 2rem;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
         }
+
         .chart-title {
             text-align: center;
             margin-bottom: 1rem;
+            font-weight: 600;
         }
-        .model-comparison {
+
+        .chart-image {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
+            height: auto;
+            border-radius: var(--border-radius);
         }
-        .model-comparison th, .model-comparison td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        .model-comparison th {
-            background-color: #f2f2f2;
-        }
-        .model-comparison tr:hover {
-            background-color: #f5f5f5;
-        }
-        .badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .badge-success {
-            background-color: #2ecc71;
-            color: white;
-        }
-        .badge-warning {
-            background-color: #f39c12;
-            color: white;
-        }
-        .badge-danger {
-            background-color: #e74c3c;
-            color: white;
-        }
+
         .loading {
             display: none;
             text-align: center;
             padding: 2rem;
         }
+
         .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
             width: 50px;
             height: 50px;
+            border: 4px solid rgba(52, 152, 219, 0.1);
+            border-left-color: var(--secondary-color);
+            border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 1rem auto;
+            margin: 0 auto 1rem;
         }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-success { background-color: var(--success-color); color: white; }
+        .badge-warning { background-color: var(--warning-color); color: white; }
+        .badge-danger { background-color: var(--danger-color); color: white; }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
+
         @media (max-width: 768px) {
-            .chart-box {
-                flex: 0 0 100%;
-            }
+            .container { padding: 16px; }
+            header { padding: 1.5rem; }
+            .upload-container, .results-container { padding: 1.5rem; }
+            .charts-container { grid-template-columns: 1fr; }
+        }
+
+        .offline-banner {
+            display: none;
+            background-color: var(--warning-color);
+            color: white;
+            text-align: center;
+            padding: 0.5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
+    <div class="offline-banner" id="offlineBanner">
+        You are currently offline. Some features may be limited.
+    </div>
+
     <header>
         <h1>Engine Sound Classifier</h1>
         <p>Upload engine audio to identify potential issues</p>
@@ -196,390 +230,178 @@
     <div class="container">
         <div class="upload-container">
             <h2>Upload Engine Sound</h2>
-            <p>Upload an audio file of engine sound to analyze and identify potential issues</p>
+            <p>Upload a WAV file of engine sound to analyze and identify potential issues</p>
             
             <div class="upload-area" id="dropArea">
                 <div class="upload-icon">📁</div>
-                <p>Drag & drop your audio file here or click to browse</p>
-                <p class="small">Supported formats: .wav, .mp3, .ogg</p>
+                <p>Drag and drop your audio file here or click to browse</p>
+                <input type="file" id="fileInput" accept=".wav" class="hidden" style="display: none;">
             </div>
             
-            <input type="file" id="fileInput" class="hidden" accept="audio/*">
-            <button class="btn" id="uploadBtn">Upload Audio</button>
+            <button id="uploadBtn" class="btn" disabled>Analyze Sound</button>
         </div>
-        
-        <div class="loading" id="loadingIndicator">
+
+        <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>Analyzing engine sound...</p>
         </div>
-        
-        <div class="results-container" id="resultsContainer">
-            <div class="result-header">
-                <h2>Analysis Results</h2>
-                <p>Here's what we found in your engine sound recording</p>
-            </div>
-            
+
+        <div class="results-container" id="results">
             <div class="result-card">
-                <div class="result-title">
-                    <h3>Primary Diagnosis</h3>
-                    <span class="badge badge-warning" id="confidenceLevel">Medium Confidence</span>
-                </div>
-                <p id="primaryResult">Loading results...</p>
-                <h4>Confidence Level: <span id="confidencePercent">0</span>%</h4>
-                <div class="confidence-bar-container">
-                    <div class="confidence-bar" id="confidenceBar" style="width: 0%">0%</div>
-                </div>
-                <p><small>Based on the highest confidence prediction from all models</small></p>
+                <h3>Analysis Results</h3>
+                <div id="bestPrediction"></div>
+                <div id="confidence"></div>
             </div>
-            
+
             <div class="charts-container">
                 <div class="chart-box">
-                    <div class="chart-title">
-                        <h3>Model Confidence Comparison</h3>
-                    </div>
-                    <div id="confidenceChart">
-                        <!-- Chart will be inserted here -->
-                        <p class="text-center">Chart loading...</p>
-                    </div>
+                    <h4 class="chart-title">Model Confidence Comparison</h4>
+                    <img id="confidenceChart" class="chart-image" alt="Confidence Chart">
                 </div>
-                
                 <div class="chart-box">
-                    <div class="chart-title">
-                        <h3>Voting Distribution</h3>
-                    </div>
-                    <div id="votingChart">
-                        <!-- Chart will be inserted here -->
-                        <p class="text-center">Chart loading...</p>
-                    </div>
+                    <h4 class="chart-title">Model Voting Distribution</h4>
+                    <img id="votingChart" class="chart-image" alt="Voting Chart">
                 </div>
-            </div>
-            
-            <div class="chart-box">
-                <div class="chart-title">
-                    <h3>Model Comparison</h3>
-                </div>
-                <table class="model-comparison" id="modelComparisonTable">
-                    <thead>
-                        <tr>
-                            <th>Model</th>
-                            <th>Prediction</th>
-                            <th>Confidence</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Table rows will be inserted here -->
-                        <tr>
-                            <td colspan="3" class="text-center">Loading model data...</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Basic file upload functionality
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => console.log('ServiceWorker registered'))
+                    .catch(err => console.log('ServiceWorker registration failed:', err));
+            });
+        }
+
+        // Offline detection
+        const offlineBanner = document.getElementById('offlineBanner');
+        window.addEventListener('online', () => offlineBanner.style.display = 'none');
+        window.addEventListener('offline', () => offlineBanner.style.display = 'block');
+
+        // DOM Elements
         const dropArea = document.getElementById('dropArea');
         const fileInput = document.getElementById('fileInput');
         const uploadBtn = document.getElementById('uploadBtn');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const resultsContainer = document.getElementById('resultsContainer');
-        
-        let confidenceChart = null;
-        let votingChart = null;
-        
-        // Initialize charts
-        function initializeCharts() {
-            // Confidence comparison chart
-            const confidenceCtx = document.createElement('canvas');
-            document.getElementById('confidenceChart').innerHTML = '';
-            document.getElementById('confidenceChart').appendChild(confidenceCtx);
-            
-            confidenceChart = new Chart(confidenceCtx, {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Confidence (%)',
-                        data: [],
-                        backgroundColor: [],
-                        borderColor: [],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Model Confidence Comparison',
-                            font: { size: 16 }
-                        },
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'Confidence (%)'
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Voting distribution chart
-            const votingCtx = document.createElement('canvas');
-            document.getElementById('votingChart').innerHTML = '';
-            document.getElementById('votingChart').appendChild(votingCtx);
-            
-            votingChart = new Chart(votingCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: [
-                            '#2ecc71',
-                            '#e74c3c',
-                            '#f39c12',
-                            '#3498db',
-                            '#9b59b6'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Model Voting Distribution',
-                            font: { size: 16 }
-                        },
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Initialize charts on page load
-        initializeCharts();
-        
-        // Open file browser when clicking on the drop area
-        dropArea.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        // Handle file selection
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                const fileName = fileInput.files[0].name;
-                dropArea.innerHTML = `<div class="upload-icon">🎵</div><p>Selected file: ${fileName}</p>`;
-            }
-        });
-        
-        // Handle drag and drop events
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const bestPrediction = document.getElementById('bestPrediction');
+        const confidence = document.getElementById('confidence');
+        const confidenceChart = document.getElementById('confidenceChart');
+        const votingChart = document.getElementById('votingChart');
+
+        // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
         });
-        
+
         function preventDefaults(e) {
             e.preventDefault();
             e.stopPropagation();
         }
-        
-        // Highlight drop area when dragging over it
+
+        // Highlight drop zone when dragging over it
         ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => {
-                dropArea.style.backgroundColor = '#f0f9ff';
-                dropArea.style.borderColor = '#2980b9';
-            });
+            dropArea.addEventListener(eventName, highlight, false);
         });
-        
+
         ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => {
-                dropArea.style.backgroundColor = '';
-                dropArea.style.borderColor = '';
-            });
+            dropArea.addEventListener(eventName, unhighlight, false);
         });
-        
-        // Handle dropped files
-        dropArea.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                const fileName = files[0].name;
-                dropArea.innerHTML = `<div class="upload-icon">🎵</div><p>Selected file: ${fileName}</p>`;
-            }
-        });
-        
-        // Function to display results from API response
-        function displayResults(results) {
-            const bestModel = results.best_model;
-            const bestPrediction = results.best_prediction;
-            const highestConfidence = results.highest_confidence;
-            const modelResults = results.results;
-            
-            // Update primary result
-            document.getElementById('primaryResult').textContent = bestPrediction;
-            
-            // Update confidence level
-            const confidence = Math.round(highestConfidence * 100);
-            document.getElementById('confidencePercent').textContent = confidence;
-            const confidenceBar = document.getElementById('confidenceBar');
-            confidenceBar.style.width = confidence + '%';
-            confidenceBar.textContent = confidence + '%';
-            
-            // Set confidence badge
-            const confidenceBadge = document.getElementById('confidenceLevel');
-            if (confidence >= 80) {
-                confidenceBadge.className = 'badge badge-success';
-                confidenceBadge.textContent = 'High Confidence';
-            } else if (confidence >= 60) {
-                confidenceBadge.className = 'badge badge-warning';
-                confidenceBadge.textContent = 'Medium Confidence';
-            } else {
-                confidenceBadge.className = 'badge badge-danger';
-                confidenceBadge.textContent = 'Low Confidence';
-            }
-            
-            // Prepare data for charts
-            const modelData = Object.entries(modelResults).map(([model, data]) => ({
-                model: model,
-                prediction: data.label,
-                confidence: Math.round(data.confidence * 100)
-            }));
-            
-            // Update confidence comparison chart
-            const labels = modelData.map(item => item.model);
-            const confidences = modelData.map(item => item.confidence);
-            const backgroundColor = modelData.map(item => 
-                item.model === bestModel ? '#9b59b6' : '#3498db'
-            );
-            
-            confidenceChart.data.labels = labels;
-            confidenceChart.data.datasets[0].data = confidences;
-            confidenceChart.data.datasets[0].backgroundColor = backgroundColor;
-            confidenceChart.data.datasets[0].borderColor = backgroundColor;
-            confidenceChart.update();
-            
-            // Update voting distribution chart
-            const predictions = {};
-            modelData.forEach(item => {
-                if (item.model !== 'Ensemble (Voting)') {
-                    predictions[item.prediction] = (predictions[item.prediction] || 0) + 1;
-                }
-            });
-            
-            votingChart.data.labels = Object.keys(predictions);
-            votingChart.data.datasets[0].data = Object.values(predictions);
-            votingChart.update();
-            
-            // Populate model comparison table
-            const tableBody = document.querySelector('#modelComparisonTable tbody');
-            tableBody.innerHTML = '';
-            
-            modelData.forEach(item => {
-                const row = document.createElement('tr');
-                
-                // Highlight the best model row
-                if (item.model === bestModel) {
-                    row.style.backgroundColor = '#e8f4f8';
-                    row.style.fontWeight = 'bold';
-                }
-                
-                // Create cells
-                const modelCell = document.createElement('td');
-                modelCell.textContent = item.model;
-                
-                const predictionCell = document.createElement('td');
-                predictionCell.textContent = item.prediction;
-                
-                const confidenceCell = document.createElement('td');
-                
-                // Create confidence bar for the cell
-                const miniBar = document.createElement('div');
-                miniBar.style.display = 'flex';
-                miniBar.style.alignItems = 'center';
-                
-                const barContainer = document.createElement('div');
-                barContainer.style.flex = '1';
-                barContainer.style.backgroundColor = '#e9ecef';
-                barContainer.style.borderRadius = '5px';
-                barContainer.style.height = '15px';
-                barContainer.style.marginRight = '10px';
-                
-                const bar = document.createElement('div');
-                bar.style.width = item.confidence + '%';
-                bar.style.backgroundColor = item.model === bestModel ? '#9b59b6' : '#3498db';
-                bar.style.height = '100%';
-                bar.style.borderRadius = '5px';
-                
-                const confidenceText = document.createElement('span');
-                confidenceText.textContent = item.confidence + '%';
-                
-                barContainer.appendChild(bar);
-                miniBar.appendChild(barContainer);
-                miniBar.appendChild(confidenceText);
-                confidenceCell.appendChild(miniBar);
-                
-                // Add cells to row
-                row.appendChild(modelCell);
-                row.appendChild(predictionCell);
-                row.appendChild(confidenceCell);
-                
-                // Add row to table
-                tableBody.appendChild(row);
-            });
-            
-            // Show results container
-            resultsContainer.style.display = 'block';
+
+        function highlight(e) {
+            dropArea.classList.add('drag-over');
         }
-        
-        // Upload button click handler
+
+        function unhighlight(e) {
+            dropArea.classList.remove('drag-over');
+        }
+
+        // Handle dropped files
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        // Handle selected files
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        dropArea.addEventListener('click', () => fileInput.click());
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type === 'audio/wav' || file.name.endsWith('.wav')) {
+                    uploadBtn.disabled = false;
+                } else {
+                    alert('Please upload a WAV file');
+                    uploadBtn.disabled = true;
+                }
+            }
+        }
+
+        // Upload and analyze
         uploadBtn.addEventListener('click', async () => {
             if (fileInput.files.length > 0) {
                 const formData = new FormData();
-                formData.append('audio', fileInput.files[0]);
-                
-                // Show loading indicator
-                loadingIndicator.style.display = 'block';
-                resultsContainer.style.display = 'none';
-                
+                formData.append('file', fileInput.files[0]);
+
+                loading.style.display = 'block';
+                results.style.display = 'none';
+                uploadBtn.disabled = true;
+
                 try {
-                    const response = await fetch('/predict', {
+                    const response = await fetch('/api/predict', {
                         method: 'POST',
                         body: formData
                     });
-                    
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    
-                    const results = await response.json();
-                    
-                    // Hide loading indicator
-                    loadingIndicator.style.display = 'none';
-                    
-                    // Display results
-                    displayResults(results);
+
+                    if (!response.ok) throw new Error('Network response was not ok');
+
+                    const data = await response.json();
+                    displayResults(data);
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('An error occurred while analyzing the audio file. Please try again.');
-                    loadingIndicator.style.display = 'none';
+                    alert('An error occurred while analyzing the audio file');
+                } finally {
+                    loading.style.display = 'none';
+                    uploadBtn.disabled = false;
                 }
-            } else {
-                alert('Please select an audio file first');
             }
         });
+
+        function displayResults(data) {
+            results.style.display = 'block';
+
+            // Display best prediction and confidence
+            const confidencePercent = (data.confidence * 100).toFixed(1);
+            let confidenceClass = 'badge-success';
+            if (confidencePercent < 70) confidenceClass = 'badge-danger';
+            else if (confidencePercent < 85) confidenceClass = 'badge-warning';
+
+            bestPrediction.innerHTML = `
+                <h4>Best Prediction: ${data.best_prediction}
+                    <span class="badge ${confidenceClass}">${confidencePercent}% Confident</span>
+                </h4>
+                <p>Predicted by: ${data.best_model}</p>
+            `;
+
+            // Display charts
+            if (data.confidence_chart) {
+                confidenceChart.src = `data:image/png;base64,${data.confidence_chart}`;
+            }
+            if (data.voting_chart) {
+                votingChart.src = `data:image/png;base64,${data.voting_chart}`;
+            }
+        }
     </script>
 </body>
 </html>
